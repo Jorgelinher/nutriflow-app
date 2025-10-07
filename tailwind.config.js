@@ -9,14 +9,14 @@ module.exports = {
     extend: {
       colors: {
         'nutri-primary': '#2D5B4F',
-        'nutri-secondary': '#A8DADC',
-        'nutri-background': '#F1FAEE',
+        'nutri-secondary': '#A8DADC', 
+        'nutri-light': '#F1FAEE',
         'nutri-accent': '#E63946',
-        'nutri-data': '#457B9D',
+        'nutri-steel': '#457B9D',
       },
       fontFamily: {
-        'poppins': ['Poppins', 'sans-serif'],
-        'inter': ['Inter', 'sans-serif'],
+        'poppins': ['var(--font-poppins)', 'sans-serif'],
+        'inter': ['var(--font-inter)', 'sans-serif'],
       },
     },
   },
