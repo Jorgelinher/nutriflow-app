@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion'
 import { Star, Quote } from 'lucide-react'
 import { useState, useEffect } from 'react'
+import Image from 'next/image'
 
 const testimonials = [
   {
@@ -83,7 +84,7 @@ export default function TestimonialsSection() {
               <div className="mb-8">
                 <Quote size={48} className="text-nutri-accent mx-auto mb-4" />
                 <p className="text-xl text-gray-700 italic leading-relaxed">
-                  "{testimonials[currentIndex].text}"
+                  &ldquo;{testimonials[currentIndex].text}&rdquo;
                 </p>
               </div>
 
@@ -94,9 +95,11 @@ export default function TestimonialsSection() {
               </div>
 
               <div className="flex items-center justify-center space-x-4">
-                <img
+                <Image
                   src={testimonials[currentIndex].image}
                   alt={testimonials[currentIndex].name}
+                  width={64}
+                  height={64}
                   className="w-16 h-16 rounded-full object-cover"
                 />
                 <div className="text-left">

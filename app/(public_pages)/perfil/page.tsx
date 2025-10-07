@@ -148,8 +148,8 @@ export default function ProfilePage() {
             >
               <h3 className="text-2xl font-poppins font-bold mb-6">Mi Misión</h3>
               <p className="text-lg leading-relaxed mb-6">
-                "Empoderar a cada persona para que tome control de su salud a través 
-                de decisiones nutricionales informadas y sostenibles."
+                &ldquo;Empoderar a cada persona para que tome control de su salud a través 
+                de decisiones nutricionales informadas y sostenibles.&rdquo;
               </p>
               <div className="space-y-4">
                 <div className="flex items-center space-x-3">
