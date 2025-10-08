@@ -118,7 +118,7 @@ export default function HowItWorksSection() {
                       {step.title}
                     </h3>
                     
-                    <p className="text-gray-600 mb-6 leading-relaxed">
+                    <p className="text-gray-700 mb-6 leading-relaxed">
                       {step.description}
                     </p>
 
@@ -131,7 +131,7 @@ export default function HowItWorksSection() {
                           whileInView={{ opacity: 1, x: 0 }}
                           transition={{ duration: 0.5, delay: (index * 0.2) + (featureIndex * 0.1) }}
                           viewport={{ once: true }}
-                          className="flex items-center text-sm text-gray-600"
+                          className="flex items-center text-sm text-gray-700"
                         >
                           <CheckCircle className="w-4 h-4 text-nutri-accent mr-2 flex-shrink-0" />
                           {feature}

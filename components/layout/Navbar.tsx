@@ -25,17 +25,17 @@ export default function Navbar() {
           
           <div className="hidden md:flex space-x-8">
             <motion.div whileHover={{ scale: 1.05 }} transition={{ duration: 0.2 }}>
-              <Link href="/" className="text-gray-700 hover:text-nutri-primary transition-colors">
+              <Link href="/" className="text-gray-800 hover:text-nutri-primary transition-colors font-medium">
                 Inicio
               </Link>
             </motion.div>
             <motion.div whileHover={{ scale: 1.05 }} transition={{ duration: 0.2 }}>
-              <Link href="/perfil" className="text-gray-700 hover:text-nutri-primary transition-colors">
+              <Link href="/perfil" className="text-gray-800 hover:text-nutri-primary transition-colors font-medium">
                 Sobre Mí
               </Link>
             </motion.div>
             <motion.div whileHover={{ scale: 1.05 }} transition={{ duration: 0.2 }}>
-              <Link href="/servicios" className="text-gray-700 hover:text-nutri-primary transition-colors">
+              <Link href="/servicios" className="text-gray-800 hover:text-nutri-primary transition-colors font-medium">
                 Servicios
               </Link>
             </motion.div>

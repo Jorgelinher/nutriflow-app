@@ -16,7 +16,7 @@ export default function HeroSection() {
       </div>
 
       <div className="relative container mx-auto px-4 py-20">
-        <div className="grid lg:grid-cols-2 gap-12 items-center min-h-screen">
+        <div className="grid lg:grid-cols-2 gap-12 items-center min-h-screen justify-items-center">
           {/* Content */}
           <motion.div
             initial={{ opacity: 0, x: -50 }}
@@ -52,7 +52,7 @@ export default function HeroSection() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.4 }}
-              className="text-xl lg:text-2xl text-white/90 leading-relaxed max-w-2xl"
+              className="text-xl lg:text-2xl text-white leading-relaxed max-w-2xl"
             >
               Nutrición inteligente y personalizada para una vida plena. 
               Planes alimenticios diseñados específicamente para ti.
@@ -76,7 +76,7 @@ export default function HeroSection() {
               <Button 
                 variant="outline"
                 size="lg"
-                className="border-2 border-white/30 text-white hover:bg-white/10 px-8 py-4 text-lg font-semibold backdrop-blur-sm"
+                className="border-2 border-white text-white hover:bg-white hover:text-nutri-primary px-8 py-4 text-lg font-semibold backdrop-blur-sm transition-all duration-300"
               >
                 <Play className="mr-2" size={20} />
                 Ver Cómo Funciona

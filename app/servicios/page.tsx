@@ -48,7 +48,7 @@ export default function ServiciosPage() {
           <h1 className="text-4xl md:text-5xl font-poppins font-bold text-nutri-primary mb-4">
             Nuestros Servicios
           </h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+          <p className="text-xl text-gray-700 max-w-2xl mx-auto">
             Planes nutricionales personalizados para cada necesidad
           </p>
         </div>
@@ -59,13 +59,13 @@ export default function ServiciosPage() {
               <h3 className="text-2xl font-bold text-nutri-primary mb-4">
                 {servicio.nombre}
               </h3>
-              <p className="text-gray-600 mb-6">
+              <p className="text-gray-700 mb-6">
                 {servicio.descripcion}
               </p>
               
               <ul className="text-left space-y-2 mb-6">
                 {servicio.incluye.map((item, index) => (
-                  <li key={index} className="flex items-center">
+                  <li key={index} className="flex items-center text-gray-700">
                     <span className="text-nutri-accent mr-2">✓</span>
                     {item}
                   </li>

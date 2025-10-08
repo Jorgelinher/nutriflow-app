@@ -17,7 +17,7 @@ export default function CallToActionSection() {
           <h2 className="text-4xl md:text-5xl font-poppins font-bold mb-6">
             ¿Listo para transformar tu salud?
           </h2>
-          <p className="text-xl mb-8 text-nutri-light">
+          <p className="text-xl mb-8 text-white">
             Comienza tu journey hacia una vida más saludable hoy mismo
           </p>
           <motion.div

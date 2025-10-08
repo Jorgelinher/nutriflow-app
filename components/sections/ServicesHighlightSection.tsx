@@ -96,7 +96,7 @@ export default function ServicesHighlightSection() {
                     {service.title}
                   </h3>
                   
-                  <p className="text-gray-600 mb-6 leading-relaxed">
+                  <p className="text-gray-700 mb-6 leading-relaxed">
                     {service.description}
                   </p>
 
@@ -108,7 +108,7 @@ export default function ServicesHighlightSection() {
                         whileInView={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.5, delay: (index * 0.2) + (featureIndex * 0.1) }}
                         viewport={{ once: true }}
-                        className="flex items-center text-sm text-gray-600"
+                        className="flex items-center text-sm text-gray-700"
                       >
                         <div className="w-2 h-2 bg-nutri-accent rounded-full mr-3"></div>
                         {feature}

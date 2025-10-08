@@ -66,7 +66,7 @@ export default function TestimonialsSection() {
           <h2 className="text-3xl md:text-4xl font-poppins font-bold text-nutri-primary mb-4">
             Lo que Dicen Nuestros Pacientes
           </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+          <p className="text-xl text-gray-700 max-w-3xl mx-auto">
             Historias reales de transformación y éxito en el camino hacia una vida más saludable.
           </p>
         </motion.div>
@@ -106,7 +106,7 @@ export default function TestimonialsSection() {
                   <h4 className="font-poppins font-semibold text-nutri-primary">
                     {testimonials[currentIndex].name}
                   </h4>
-                  <p className="text-gray-600">
+                  <p className="text-gray-700">
                     {testimonials[currentIndex].role}
                   </p>
                 </div>
@@ -140,19 +140,19 @@ export default function TestimonialsSection() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             <div className="text-center">
               <div className="text-3xl font-poppins font-bold text-nutri-primary mb-2">500+</div>
-              <div className="text-gray-600">Pacientes Atendidos</div>
+              <div className="text-gray-700">Pacientes Atendidos</div>
             </div>
             <div className="text-center">
               <div className="text-3xl font-poppins font-bold text-nutri-primary mb-2">98%</div>
-              <div className="text-gray-600">Satisfacción</div>
+              <div className="text-gray-700">Satisfacción</div>
             </div>
             <div className="text-center">
               <div className="text-3xl font-poppins font-bold text-nutri-primary mb-2">5</div>
-              <div className="text-gray-600">Años de Experiencia</div>
+              <div className="text-gray-700">Años de Experiencia</div>
             </div>
             <div className="text-center">
               <div className="text-3xl font-poppins font-bold text-nutri-primary mb-2">24/7</div>
-              <div className="text-gray-600">Soporte</div>
+              <div className="text-gray-700">Soporte</div>
             </div>
           </div>
         </motion.div>
