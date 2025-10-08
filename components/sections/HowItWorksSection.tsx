@@ -1,3 +1,7 @@
+'use client'
+
+import { motion } from 'framer-motion'
+
 export default function HowItWorksSection() {
   const steps = [
     {
@@ -25,18 +29,31 @@ export default function HowItWorksSection() {
   return (
     <section className="py-20 bg-white">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-16">
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          viewport={{ once: true }}
+          className="text-center mb-16"
+        >
           <h2 className="text-4xl md:text-5xl font-poppins font-bold text-nutri-primary mb-4">
             Cómo Funciona
           </h2>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
             Un proceso simple y efectivo para transformar tu salud
           </p>
-        </div>
+        </motion.div>
         
         <div className="grid md:grid-cols-4 gap-8 max-w-6xl mx-auto">
           {steps.map((step, index) => (
-            <div key={index} className="text-center">
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: index * 0.2 }}
+              viewport={{ once: true }}
+              className="text-center"
+            >
               <div className="w-20 h-20 bg-nutri-accent text-white rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-6">
                 {step.number}
               </div>
@@ -46,7 +63,7 @@ export default function HowItWorksSection() {
               <p className="text-gray-600">
                 {step.description}
               </p>
-            </div>
+            </motion.div>
           ))}
         </div>
       </div>
