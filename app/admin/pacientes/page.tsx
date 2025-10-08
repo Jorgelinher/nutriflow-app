@@ -15,6 +15,8 @@ import {
   FileText,
   Download
 } from 'lucide-react'
+import { Patient, SupabaseService } from '@/lib/supabase'
+import PatientForm from '@/components/admin/PatientForm'
 
 // Mock data - in real app, this would come from Supabase
 const mockPatients = [
@@ -95,28 +97,53 @@ const mockPatients = [
 export default function PacientesPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [filterStatus, setFilterStatus] = useState('Todos')
-  const [filteredPatients, setFilteredPatients] = useState(mockPatients)
-  const [selectedPatient, setSelectedPatient] = useState(null)
+  const [patients, setPatients] = useState<Patient[]>([])
+  const [filteredPatients, setFilteredPatients] = useState<Patient[]>([])
+  const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null)
+  const [isFormOpen, setIsFormOpen] = useState(false)
+  const [editingPatient, setEditingPatient] = useState<Patient | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+
+  // Load patients on component mount
+  useEffect(() => {
+    loadPatients()
+  }, [])
+
+  const loadPatients = async () => {
+    try {
+      setIsLoading(true)
+      const data = await SupabaseService.getPatients()
+      setPatients(data)
+      setFilteredPatients(data)
+    } catch (error) {
+      console.error('Error loading patients:', error)
+      // Fallback to mock data
+      setPatients(mockPatients as any)
+      setFilteredPatients(mockPatients as any)
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   useEffect(() => {
-    let filtered = mockPatients
+    let filtered = patients
 
     // Filter by search term
     if (searchTerm) {
       filtered = filtered.filter(patient =>
-        patient.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        patient.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        patient.phone.includes(searchTerm)
+        patient.profile?.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        patient.goal?.toLowerCase().includes(searchTerm.toLowerCase())
       )
     }
 
-    // Filter by status
+    // Filter by status (we'll use plan status for now)
     if (filterStatus !== 'Todos') {
-      filtered = filtered.filter(patient => patient.status === filterStatus)
+      // This would need to be implemented based on your business logic
+      // For now, we'll keep all patients
     }
 
     setFilteredPatients(filtered)
-  }, [searchTerm, filterStatus])
+  }, [searchTerm, filterStatus, patients])
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -131,6 +158,50 @@ export default function PacientesPage() {
     if (progress >= 80) return 'bg-green-500'
     if (progress >= 60) return 'bg-yellow-500'
     return 'bg-red-500'
+  }
+
+  const handleCreatePatient = async (patientData: Partial<Patient>) => {
+    try {
+      await SupabaseService.createPatient(patientData)
+      await loadPatients()
+      setIsFormOpen(false)
+    } catch (error) {
+      console.error('Error creating patient:', error)
+    }
+  }
+
+  const handleUpdatePatient = async (patientData: Partial<Patient>) => {
+    if (!editingPatient) return
+    
+    try {
+      await SupabaseService.updatePatient(editingPatient.id, patientData)
+      await loadPatients()
+      setIsFormOpen(false)
+      setEditingPatient(null)
+    } catch (error) {
+      console.error('Error updating patient:', error)
+    }
+  }
+
+  const handleDeletePatient = async (id: number) => {
+    if (confirm('¿Estás seguro de que quieres eliminar este paciente?')) {
+      try {
+        await SupabaseService.deletePatient(id)
+        await loadPatients()
+      } catch (error) {
+        console.error('Error deleting patient:', error)
+      }
+    }
+  }
+
+  const openCreateForm = () => {
+    setEditingPatient(null)
+    setIsFormOpen(true)
+  }
+
+  const openEditForm = (patient: Patient) => {
+    setEditingPatient(patient)
+    setIsFormOpen(true)
   }
 
   return (
@@ -151,7 +222,10 @@ export default function PacientesPage() {
           </p>
         </div>
         <div className="flex items-center space-x-4">
-          <button className="btn-primary flex items-center space-x-2">
+          <button 
+            onClick={openCreateForm}
+            className="btn-primary flex items-center space-x-2"
+          >
             <Plus size={20} />
             <span>Nuevo Paciente</span>
           </button>
@@ -275,70 +349,90 @@ export default function PacientesPage() {
               </tr>
             </thead>
             <tbody>
-              {filteredPatients.map((patient) => (
-                <tr key={patient.id} className="border-b border-gray-100 hover:bg-gray-50">
-                  <td className="py-4 px-4">
-                    <div>
-                      <div className="font-medium text-gray-900">{patient.name}</div>
-                      <div className="text-sm text-gray-500">{patient.email}</div>
-                      <div className="text-sm text-gray-500">{patient.phone}</div>
-                    </div>
-                  </td>
-                  <td className="py-4 px-4">
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-nutri-secondary text-nutri-primary">
-                      {patient.plan}
-                    </span>
-                  </td>
-                  <td className="py-4 px-4">
-                    <div className="flex items-center space-x-2">
-                      <div className="w-16 bg-gray-200 rounded-full h-2">
-                        <div 
-                          className={`h-2 rounded-full ${getProgressColor(patient.progress)}`}
-                          style={{ width: `${patient.progress}%` }}
-                        ></div>
-                      </div>
-                      <span className="text-sm font-medium text-gray-700">{patient.progress}%</span>
-                    </div>
-                  </td>
-                  <td className="py-4 px-4">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(patient.status)}`}>
-                      {patient.status}
-                    </span>
-                  </td>
-                  <td className="py-4 px-4 text-gray-600">
-                    {patient.nextAppointment || 'Sin cita'}
-                  </td>
-                  <td className="py-4 px-4">
-                    <div className="flex items-center space-x-2">
-                      <button 
-                        onClick={() => setSelectedPatient(patient)}
-                        className="text-nutri-primary hover:text-nutri-accent transition-colors duration-200"
-                        title="Ver detalles"
-                      >
-                        <Eye size={18} />
-                      </button>
-                      <button 
-                        className="text-nutri-data hover:text-nutri-accent transition-colors duration-200"
-                        title="Editar"
-                      >
-                        <Edit size={18} />
-                      </button>
-                      <button 
-                        className="text-green-600 hover:text-green-700 transition-colors duration-200"
-                        title="Contactar"
-                      >
-                        <MessageCircle size={18} />
-                      </button>
-                      <button 
-                        className="text-red-600 hover:text-red-700 transition-colors duration-200"
-                        title="Eliminar"
-                      >
-                        <Trash2 size={18} />
-                      </button>
-                    </div>
+              {isLoading ? (
+                <tr>
+                  <td colSpan={6} className="py-8 text-center text-gray-500">
+                    Cargando pacientes...
                   </td>
                 </tr>
-              ))}
+              ) : filteredPatients.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="py-8 text-center text-gray-500">
+                    No se encontraron pacientes
+                  </td>
+                </tr>
+              ) : (
+                filteredPatients.map((patient) => (
+                  <tr key={patient.id} className="border-b border-gray-100 hover:bg-gray-50">
+                    <td className="py-4 px-4">
+                      <div>
+                        <div className="font-medium text-gray-900">
+                          {patient.profile?.full_name || `Paciente ${patient.id}`}
+                        </div>
+                        <div className="text-sm text-gray-500">ID: {patient.id}</div>
+                        <div className="text-sm text-gray-500">
+                          {patient.goal || 'Sin objetivo definido'}
+                        </div>
+                      </div>
+                    </td>
+                    <td className="py-4 px-4">
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-nutri-secondary text-nutri-primary">
+                        {patient.goal || 'Sin plan'}
+                      </span>
+                    </td>
+                    <td className="py-4 px-4">
+                      <div className="flex items-center space-x-2">
+                        <div className="w-16 bg-gray-200 rounded-full h-2">
+                          <div 
+                            className="h-2 rounded-full bg-nutri-primary"
+                            style={{ width: '75%' }}
+                          ></div>
+                        </div>
+                        <span className="text-sm font-medium text-gray-700">75%</span>
+                      </div>
+                    </td>
+                    <td className="py-4 px-4">
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        Activo
+                      </span>
+                    </td>
+                    <td className="py-4 px-4 text-gray-600">
+                      {new Date(patient.created_at).toLocaleDateString()}
+                    </td>
+                    <td className="py-4 px-4">
+                      <div className="flex items-center space-x-2">
+                        <button 
+                          onClick={() => setSelectedPatient(patient)}
+                          className="text-nutri-primary hover:text-nutri-accent transition-colors duration-200"
+                          title="Ver detalles"
+                        >
+                          <Eye size={18} />
+                        </button>
+                        <button 
+                          onClick={() => openEditForm(patient)}
+                          className="text-nutri-data hover:text-nutri-accent transition-colors duration-200"
+                          title="Editar"
+                        >
+                          <Edit size={18} />
+                        </button>
+                        <button 
+                          className="text-green-600 hover:text-green-700 transition-colors duration-200"
+                          title="Contactar"
+                        >
+                          <MessageCircle size={18} />
+                        </button>
+                        <button 
+                          onClick={() => handleDeletePatient(patient.id)}
+                          className="text-red-600 hover:text-red-700 transition-colors duration-200"
+                          title="Eliminar"
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
@@ -408,6 +502,18 @@ export default function PacientesPage() {
           </motion.div>
         </motion.div>
       )}
+
+      {/* Patient Form Modal */}
+      <PatientForm
+        isOpen={isFormOpen}
+        onClose={() => {
+          setIsFormOpen(false)
+          setEditingPatient(null)
+        }}
+        onSubmit={editingPatient ? handleUpdatePatient : handleCreatePatient}
+        patient={editingPatient}
+        title={editingPatient ? 'Editar Paciente' : 'Nuevo Paciente'}
+      />
     </div>
   )
 }
