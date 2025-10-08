@@ -1,17 +1,5 @@
-import HeroSection from '@/components/sections/HeroSection'
-import ServicesHighlightSection from '@/components/sections/ServicesHighlightSection'
-import TestimonialsSection from '@/components/sections/TestimonialsSection'
-import HowItWorksSection from '@/components/sections/HowItWorksSection'
-import CallToActionSection from '@/components/sections/CallToActionSection'
+import { redirect } from 'next/navigation'
 
 export default function HomePage() {
-  return (
-    <>
-      <HeroSection />
-      <ServicesHighlightSection />
-      <TestimonialsSection />
-      <HowItWorksSection />
-      <CallToActionSection />
-    </>
-  )
+  redirect('/public')
 }
