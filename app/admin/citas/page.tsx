@@ -15,6 +15,8 @@ import {
   XCircle,
   AlertCircle
 } from 'lucide-react'
+import { Consultation, Patient, SupabaseService } from '@/lib/supabase'
+import ConsultationForm from '@/components/admin/ConsultationForm'
 
 // Mock data - in real app, this would come from Supabase
 const mockAppointments = [
@@ -89,17 +91,46 @@ const mockAppointments = [
 export default function CitasPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [filterStatus, setFilterStatus] = useState('Todas')
-  const [filteredAppointments, setFilteredAppointments] = useState(mockAppointments)
+  const [appointments, setAppointments] = useState<Consultation[]>([])
+  const [filteredAppointments, setFilteredAppointments] = useState<Consultation[]>([])
+  const [patients, setPatients] = useState<Patient[]>([])
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0])
+  const [isFormOpen, setIsFormOpen] = useState(false)
+  const [editingConsultation, setEditingConsultation] = useState<Consultation | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+
+  // Load data on component mount
+  useEffect(() => {
+    loadData()
+  }, [])
+
+  const loadData = async () => {
+    try {
+      setIsLoading(true)
+      const [consultationsData, patientsData] = await Promise.all([
+        SupabaseService.getConsultations(),
+        SupabaseService.getPatients()
+      ])
+      setAppointments(consultationsData)
+      setFilteredAppointments(consultationsData)
+      setPatients(patientsData)
+    } catch (error) {
+      console.error('Error loading data:', error)
+      // Fallback to mock data
+      setAppointments(mockAppointments as any)
+      setFilteredAppointments(mockAppointments as any)
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   useEffect(() => {
-    let filtered = mockAppointments
+    let filtered = appointments
 
     // Filter by search term
     if (searchTerm) {
       filtered = filtered.filter(appointment =>
-        appointment.patient.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        appointment.patientEmail.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        appointment.patient?.profile?.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         appointment.type.toLowerCase().includes(searchTerm.toLowerCase())
       )
     }
@@ -110,7 +141,7 @@ export default function CitasPage() {
     }
 
     setFilteredAppointments(filtered)
-  }, [searchTerm, filterStatus])
+  }, [searchTerm, filterStatus, appointments])
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -141,8 +172,54 @@ export default function CitasPage() {
     }
   }
 
-  const todayAppointments = mockAppointments.filter(apt => apt.date === selectedDate)
-  const upcomingAppointments = mockAppointments.filter(apt => apt.status === 'Programada')
+  const todayAppointments = appointments.filter(apt => 
+    new Date(apt.consultation_date).toISOString().split('T')[0] === selectedDate
+  )
+  const upcomingAppointments = appointments.filter(apt => apt.status === 'scheduled')
+
+  const handleCreateConsultation = async (consultationData: Partial<Consultation>) => {
+    try {
+      await SupabaseService.createConsultation(consultationData)
+      await loadData()
+      setIsFormOpen(false)
+    } catch (error) {
+      console.error('Error creating consultation:', error)
+    }
+  }
+
+  const handleUpdateConsultation = async (consultationData: Partial<Consultation>) => {
+    if (!editingConsultation) return
+    
+    try {
+      await SupabaseService.updateConsultation(editingConsultation.id, consultationData)
+      await loadData()
+      setIsFormOpen(false)
+      setEditingConsultation(null)
+    } catch (error) {
+      console.error('Error updating consultation:', error)
+    }
+  }
+
+  const handleDeleteConsultation = async (id: number) => {
+    if (confirm('¿Estás seguro de que quieres eliminar esta cita?')) {
+      try {
+        await SupabaseService.deleteConsultation(id)
+        await loadData()
+      } catch (error) {
+        console.error('Error deleting consultation:', error)
+      }
+    }
+  }
+
+  const openCreateForm = () => {
+    setEditingConsultation(null)
+    setIsFormOpen(true)
+  }
+
+  const openEditForm = (consultation: Consultation) => {
+    setEditingConsultation(consultation)
+    setIsFormOpen(true)
+  }
 
   return (
     <div className="space-y-8">
@@ -162,7 +239,10 @@ export default function CitasPage() {
           </p>
         </div>
         <div className="flex items-center space-x-4">
-          <button className="btn-primary flex items-center space-x-2">
+          <button 
+            onClick={openCreateForm}
+            className="btn-primary flex items-center space-x-2"
+          >
             <Plus size={20} />
             <span>Nueva Cita</span>
           </button>
@@ -339,44 +419,85 @@ export default function CitasPage() {
               </tr>
             </thead>
             <tbody>
-              {filteredAppointments.map((appointment) => (
-                <tr key={appointment.id} className="border-b border-gray-100 hover:bg-gray-50">
-                  <td className="py-4 px-4">
-                    <div>
-                      <div className="font-medium text-gray-900">{appointment.patient}</div>
-                      <div className="text-sm text-gray-500">{appointment.patientEmail}</div>
-                    </div>
-                  </td>
-                  <td className="py-4 px-4">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getTypeColor(appointment.type)}`}>
-                      {appointment.type}
-                    </span>
-                  </td>
-                  <td className="py-4 px-4 text-gray-600">{appointment.date}</td>
-                  <td className="py-4 px-4 text-gray-600">{appointment.time}</td>
-                  <td className="py-4 px-4 text-gray-600">{appointment.duration} min</td>
-                  <td className="py-4 px-4">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(appointment.status)}`}>
-                      {getStatusIcon(appointment.status)}
-                      <span className="ml-1">{appointment.status}</span>
-                    </span>
-                  </td>
-                  <td className="py-4 px-4">
-                    <div className="flex items-center space-x-2">
-                      <button className="text-nutri-primary hover:text-nutri-accent transition-colors duration-200">
-                        <Edit size={18} />
-                      </button>
-                      <button className="text-red-600 hover:text-red-700 transition-colors duration-200">
-                        <Trash2 size={18} />
-                      </button>
-                    </div>
+              {isLoading ? (
+                <tr>
+                  <td colSpan={7} className="py-8 text-center text-gray-500">
+                    Cargando citas...
                   </td>
                 </tr>
-              ))}
+              ) : filteredAppointments.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="py-8 text-center text-gray-500">
+                    No se encontraron citas
+                  </td>
+                </tr>
+              ) : (
+                filteredAppointments.map((appointment) => (
+                  <tr key={appointment.id} className="border-b border-gray-100 hover:bg-gray-50">
+                    <td className="py-4 px-4">
+                      <div>
+                        <div className="font-medium text-gray-900">
+                          {appointment.patient?.profile?.full_name || `Paciente ${appointment.patient_id}`}
+                        </div>
+                        <div className="text-sm text-gray-500">ID: {appointment.id}</div>
+                      </div>
+                    </td>
+                    <td className="py-4 px-4">
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getTypeColor(appointment.type)}`}>
+                        {appointment.type}
+                      </span>
+                    </td>
+                    <td className="py-4 px-4 text-gray-600">
+                      {new Date(appointment.consultation_date).toLocaleDateString()}
+                    </td>
+                    <td className="py-4 px-4 text-gray-600">
+                      {new Date(appointment.consultation_date).toLocaleTimeString()}
+                    </td>
+                    <td className="py-4 px-4 text-gray-600">60 min</td>
+                    <td className="py-4 px-4">
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(appointment.status)}`}>
+                        {getStatusIcon(appointment.status)}
+                        <span className="ml-1">{appointment.status}</span>
+                      </span>
+                    </td>
+                    <td className="py-4 px-4">
+                      <div className="flex items-center space-x-2">
+                        <button 
+                          onClick={() => openEditForm(appointment)}
+                          className="text-nutri-primary hover:text-nutri-accent transition-colors duration-200"
+                          title="Editar"
+                        >
+                          <Edit size={18} />
+                        </button>
+                        <button 
+                          onClick={() => handleDeleteConsultation(appointment.id)}
+                          className="text-red-600 hover:text-red-700 transition-colors duration-200"
+                          title="Eliminar"
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
       </motion.div>
+
+      {/* Consultation Form Modal */}
+      <ConsultationForm
+        isOpen={isFormOpen}
+        onClose={() => {
+          setIsFormOpen(false)
+          setEditingConsultation(null)
+        }}
+        onSubmit={editingConsultation ? handleUpdateConsultation : handleCreateConsultation}
+        consultation={editingConsultation}
+        patients={patients}
+        title={editingConsultation ? 'Editar Cita' : 'Nueva Cita'}
+      />
     </div>
   )
 }

@@ -128,18 +128,56 @@ export default function AdminLayout({
               </div>
             </div>
           </div>
+          
+          {/* Navigation Bar */}
+          <div className="bg-gray-50 border-b border-gray-200">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <nav className="flex space-x-8 py-3">
+                <Link
+                  href="/admin"
+                  className="flex items-center space-x-2 text-gray-600 hover:text-nutri-primary transition-colors duration-200"
+                >
+                  <BarChart3 size={18} />
+                  <span className="font-medium">Dashboard</span>
+                </Link>
+                <Link
+                  href="/admin/pacientes"
+                  className="flex items-center space-x-2 text-gray-600 hover:text-nutri-primary transition-colors duration-200"
+                >
+                  <Users size={18} />
+                  <span className="font-medium">Pacientes</span>
+                </Link>
+                <Link
+                  href="/admin/citas"
+                  className="flex items-center space-x-2 text-gray-600 hover:text-nutri-primary transition-colors duration-200"
+                >
+                  <Calendar size={18} />
+                  <span className="font-medium">Citas</span>
+                </Link>
+                <Link
+                  href="/admin/reportes"
+                  className="flex items-center space-x-2 text-gray-600 hover:text-nutri-primary transition-colors duration-200"
+                >
+                  <FileText size={18} />
+                  <span className="font-medium">Reportes</span>
+                </Link>
+              </nav>
+            </div>
+          </div>
         </div>
 
         {/* Page content */}
-        <main className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="w-full"
-          >
-            {children}
-          </motion.div>
+        <main className="p-4 sm:p-6 lg:p-8">
+          <div className="max-w-7xl mx-auto">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="w-full"
+            >
+              {children}
+            </motion.div>
+          </div>
         </main>
       </div>
     </div>
